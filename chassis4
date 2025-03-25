@@ -1,0 +1,41 @@
+import adsk.core, adsk.fusion, adsk.cam
+
+# Function to create the chassis sketch
+def run(context):
+    ui = None
+    try:
+        app = adsk.core.Application.get()
+        ui = app.userInterface
+        design = app.activeProduct
+        rootComp = design.rootComponent
+        sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
+        
+        # Chassis parameters
+        width = 150  # Adjust based on actual size
+        height = 200  # Adjust based on actual size
+        arc_radius = 50
+        center_hole_radius = 10
+        motor_slot_width = 8
+        motor_slot_height = 20
+        hole_diameter = 4
+        
+        # Draw outer shape
+        lines = sketch.sketchCurves.sketchLines
+        center = adsk.core.Point3D.create(0, 0, 0)
+        top_left = adsk.core.Point3D.create(-width/2, height/2, 0)
+        top_right = adsk.core.Point3D.create(width/2, height/2, 0)
+        bottom_left = adsk.core.Point3D.create(-width/2, -height/2, 0)
+        bottom_right = adsk.core.Point3D.create(width/2, -height/2, 0)
+        
+        lines.addByTwoPoints(top_left, bottom_left)
+        lines.addByTwoPoints(bottom_left, bottom_right)
+        lines.addByTwoPoints(bottom_right, top_right)
+        lines.addByTwoPoints(top_right, top_left)
+        
+        # Add center hole
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(center, center_hole_radius)
+        
+        # Add motor slots
+        for x_offset in [-30, 30]:
+            slot_center = adsk.core.Point3D.create(x_offset, 40, 0)
+            sketch.sketchCurv
