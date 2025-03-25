@@ -1,0 +1,62 @@
+import adsk.core, adsk.fusion, adsk.cam, traceback
+
+def create_robot_chassis():
+    try:
+        app = adsk.core.Application.get()
+        ui = app.userInterface
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        if not design:
+            ui.messageBox('No active Fusion 360 design', 'Error')
+            return
+        
+        rootComp = design.rootComponent
+        sketches = rootComp.sketches
+        xyPlane = rootComp.xYConstructionPlane
+        sketch = sketches.add(xyPlane)
+
+        # Dimensions
+        length = 180  # mm
+        width = 100  # mm
+        thickness = 4  # mm
+        wheelCutoutRadius = 12  # mm
+        casterHoleRadius = 3  # mm
+        motorMountOffsetX = 40  # mm
+        motorMountOffsetY = 30  # mm
+
+        # Draw Base Rectangle
+        points = [
+            adsk.core.Point3D.create(-length/2, -width/2, 0),
+            adsk.core.Point3D.create(length/2, -width/2, 0),
+            adsk.core.Point3D.create(length/2, width/2, 0),
+            adsk.core.Point3D.create(-length/2, width/2, 0)
+        ]
+        lines = []
+        sketchLines = sketch.sketchCurves.sketchLines
+        for i in range(4):
+            lines.append(sketchLines.addByTwoPoints(points[i], points[(i+1) % 4]))
+
+        # Add Wheel Cutouts
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(-motorMountOffsetX, -width/2, 0), wheelCutoutRadius)
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(motorMountOffsetX, -width/2, 0), wheelCutoutRadius)
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(-motorMountOffsetX, width/2, 0), wheelCutoutRadius)
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(motorMountOffsetX, width/2, 0), wheelCutoutRadius)
+
+        # Add Caster Wheel Mounting Holes
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(0, width/3, 0), casterHoleRadius)
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(0, -width/3, 0), casterHoleRadius)
+
+        # Extrude Chassis
+        extrudes = rootComp.features.extrudeFeatures
+        prof = sketch.profiles.item(0)
+        extrudeInput = extrudes.createInput(prof, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+        distance = adsk.core.ValueInput.createByReal(thickness)
+        extrudeInput.setDistanceExtent(False, distance)
+        extrudes.add(extrudeInput)
+
+        ui.messageBox('Robot Chassis Created Successfully!', 'Success')
+
+    except:
+        if ui:
+            ui.messageBox('Failed:\n{}'.format(traceback.format_exc()), 'Error')
+
+create_robot_chassis()
