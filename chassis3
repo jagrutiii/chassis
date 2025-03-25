@@ -1,0 +1,85 @@
+import adsk.core, adsk.fusion, adsk.cam, traceback
+
+def create_robot_chassis():
+    try:
+        app = adsk.core.Application.get()
+        ui = app.userInterface
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        if not design:
+            ui.messageBox('No active Fusion 360 design', 'Error')
+            return
+        
+        rootComp = design.rootComponent
+        sketches = rootComp.sketches
+        xyPlane = rootComp.xYConstructionPlane
+        sketch = sketches.add(xyPlane)
+
+        # Dimensions
+        length = 200  # mm
+        width = 130  # mm
+        thickness = 4  # mm
+        motorSlotWidth = 10  # mm
+        motorSlotLength = 30  # mm
+        centerHoleRadius = 10  # mm
+        mountHoleRadius = 3  # mm
+        curveRadius = 50  # mm
+        
+        # Create base shape
+        points = [
+            adsk.core.Point3D.create(-length/2, -width/2, 0),
+            adsk.core.Point3D.create(length/2, -width/2, 0),
+            adsk.core.Point3D.create(length/2, width/2, 0),
+            adsk.core.Point3D.create(-length/2, width/2, 0)
+        ]
+        
+        sketchLines = sketch.sketchCurves.sketchLines
+        for i in range(4):
+            sketchLines.addByTwoPoints(points[i], points[(i+1) % 4])
+
+        # Rounded top/bottom
+        sketch.sketchCurves.sketchArcs.addByCenterStartSweep(
+            adsk.core.Point3D.create(0, width/2, 0), 
+            adsk.core.Point3D.create(length/2, width/2, 0), 
+            adsk.core.Point3D.create(-length/2, width/2, 0)
+        )
+        sketch.sketchCurves.sketchArcs.addByCenterStartSweep(
+            adsk.core.Point3D.create(0, -width/2, 0), 
+            adsk.core.Point3D.create(-length/2, -width/2, 0), 
+            adsk.core.Point3D.create(length/2, -width/2, 0)
+        )
+
+        # Add motor mounting slots
+        for x_offset in [-40, 40]:
+            rect = sketch.sketchCurves.sketchLines
+            rect.addCenterPointRectangle(
+                adsk.core.Point3D.create(x_offset, 0, 0),
+                adsk.core.Point3D.create(x_offset + motorSlotLength/2, motorSlotWidth/2, 0)
+            )
+
+        # Center Hole
+        sketch.sketchCurves.sketchCircles.addByCenterRadius(
+            adsk.core.Point3D.create(0, 0, 0), centerHoleRadius)
+
+        # Mounting Holes
+        mountPositions = [
+            (-50, 50), (50, 50), (-50, -50), (50, -50), (-80, 0), (80, 0)
+        ]
+        for pos in mountPositions:
+            sketch.sketchCurves.sketchCircles.addByCenterRadius(
+                adsk.core.Point3D.create(pos[0], pos[1], 0), mountHoleRadius)
+
+        # Extrude Chassis
+        extrudes = rootComp.features.extrudeFeatures
+        prof = sketch.profiles.item(0)
+        extrudeInput = extrudes.createInput(prof, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+        distance = adsk.core.ValueInput.createByReal(thickness)
+        extrudeInput.setDistanceExtent(False, distance)
+        extrudes.add(extrudeInput)
+
+        ui.messageBox('Robot Chassis Created Successfully!', 'Success')
+
+    except:
+        if ui:
+            ui.messageBox('Failed:\n{}'.format(traceback.format_exc()), 'Error')
+
+create_robot_chassis()
