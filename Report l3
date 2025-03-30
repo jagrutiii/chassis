@@ -1,0 +1,163 @@
+ ## Task 1-Build Chassis
+#### Objective :
+```
+To design a 3D printable chassis for an RC car using any software with consideration for balenced layout.
+`````
+I used Autodesk's Fusion 360 for the CAD modelling of the chassis and python scripting.
+
+Specifications of the design:
+(180 x 90x 4,) mm^3 3mm mounting holes
+the python script functions to
++ Create the sketch for base of teh chassis
++ defines teh chassis dimensions
++ draws Rectangle base shape
++ Adds wheels cutouts
++ Adds mounting holes
++ Adds centre holes
+
+[Python scrpt](https://github.com/jagrutiii/chassis/commit/4d51e04d993730712248a5c52b82dad4a6e36f2c)
+
+![](https://i.imgur.com/BjON2Os.png)
+
+#### Results
+The script successfully generated a precise 3D chassis model, allowing easy modifications and rapid prototyping.
+***
+## Task 2- SPI Communication
+
+```
+ The objective of this task was to establish SPI communication between two Arduino boards, where one acts as the Master and the other as the Slave.
+ ```
+
+Serial peripheral interface is a communication protocol used in systems to exchange data. SPI is a synchronous communication protocol. 
+A simple Register is needed to implement this protocol unlike others.
+
+ SPI, I2C, and UART are ideal for communication between microcontrollers and between microcontrollers and sensors where large amounts of high speed data don’t need to be transferred.
+ 
+### How SPI protocol transfers data?
+ 1. Clock signal is produced by the master.
+ ![](https://i.imgur.com/OHH5grQ.png)
+
+ 2. Slave device is activated by switching the SS pin to a low voltage state.
+ ![](https://i.imgur.com/rs7NjV1.png)
+3. For each clock cycle, master sends the data bit by bt to the slave along MOSI
+![](https://i.imgur.com/QomFsfq.png)
+4. As a response( if required) the slave device sends data to master bit by bit in accordance with the clock cycle.
+![](https://i.imgur.com/aDMrP1N.png)
+
+ 
+
+### *SPI uses 4 lines for communication:*
+
+**MOSI**- Master arduino sends data to slave arduino
+
+**MISO** Slave Arduino sends data to Master 
+
+**SCK** Clock signal 
+
+**SS** It activates specific slave device
+Master reads a button state and transmits data to slave , controllng the LED. Same thing happens with the slave. 
+
+#### Using arduino uno, we can demonstrate this protocol.
+the SPI pins on an uno are
++ Pin11 = MOSI
++ Pin12 = MISO
++ Pin13 = SCK
++ Pin10 = SS
+
+THE TASK:
++ master reads the state
++ master sends the button state to slave via spi
++ slave turns the LED off or on accordingly
++ Master receives slaves button state and controls its led accordingly
+
+[Code](https://github.com/jagrutiii/chassis/commit/ea3a869d9c6230aba519e30c285abdc381d3a8e8)
+
+![Circuit](https://i.imgur.com/AZPpFbc.png)
+
+#### Results
+Successful bidirectional SPI communication was established and the LEDs responded correctly to transmitted button states.
+![](https://i.imgur.com/30MYavr.jpeg)
+*** 
+## Task 3 - I2C Control
+
+```
+This task aimed at establishing bi directional communication between arduino boards using I2c protocol.
+```
+I2C protocol overcomes the disadvantage of SPI.
+ Multiple masters can be connected to a slave in this protocol.It uses 2 lines just like UART.
+
+ ![](https://i.imgur.com/7N96VFo.png)
+ + SDA -  The line for the master and slave to send and receive data.
+ + SCL The line that carries the clock signal.
+
+### How I2C works?
+  1. The master sends the start condition to every connected slave by switching the SDA line from a high voltage level to a low voltage level before switching the SCL line from high to low
+  2. The master sends each slave the 7 or 10 bit address of the slave it wants to communicate with, along with the read/write bit:
+ 3. Each slave compares the address sent from the master to its own address. If the address matches, the slave returns an ACK bit
+ 4. The master sends or receives the data frame
+ 5. After each data frame has been transferred, the receiving device returns another ACK bit to the sender to acknowledge successful receipt of the frame
+ 6. To stop the data transmission, the master sends a stop condition to the slave by switching SCL high before switching SDA high
+
+
+ ![](https://i.imgur.com/ucfFSFr.png)
+THE TASK:
+ Using the I2C pins on Arduino Uno, connections were made and communication was established.
+ ![](https://i.imgur.com/xuBi3u0.png)
+
+Some of the key functions used are
++ Wire.begin whch initializes i2c communication 
++ Wire.write(data) which sends the data over the i2c bus
++ wire.avilable()which checks if data is avilable to read.
+
+[Code](https://github.com/jagrutiii/chassis/commit/2b06445ec62218d4a063b36f5a85b7994095940b)
+
+![](https://i.imgur.com/z7ppHUa.png)
+![](https://i.imgur.com/ZhGvIAj.jpeg)
+#### Results
+Device 1 sends "Hello from 1" to Device 2 every second.
+Device 2 sends "Hello from 2" to Device 1 simultaneously.
+I2C communication is established
+
+## Task 5 - Speed Control of BLDC
+```
+The objective of this task was to learn to control the speed of a Brushless dc motor and learn how an ESC works
+```
+The speed(RPM) of the motor is determined by the KV rating of the motor.
+```
+example: if the motor is rated 1000kv, and we power it with 2 cells ov 3.7 v each so, total voltage is 7.4, the RPM will be 7.4 * 1000 = 7400 RPM
+```
+In this task, we use the servo library to generate 50hz PWM signals
+We use Arduino, a potentiometer and An electronic speed controller (ESC) of 30A rating. It uses PWM and is connected to the brushless dc motor to control the 3 phases of the motor.
+ #### ESC is used for:
+
++ Speed regulation ,control the current.
++ Motor direction control
++ Throttle control
++ offers braking system
++ provides protection to the motor from uber current, voltage fluctuations
++ prevents over charging or over discharging of the battery
++ converts PWM signals from a microcontroller to to motor
++ control signals
++ maintains synchronisation
++   The Battery Eliminator Circuit  the need of separate battery for a microcontroller. With this, the ESC provides regulated 5V which can be used to power Arduino.
+
+[Code](https://github.com/jagrutiii/chassis/blob/main/BLDC)
+
+![](https://i.imgur.com/Ho5qVKy.png)
+Results: speed of the motor was controlled usingg teh potentiometer interface.
+
+## Task 6 - Make an Atmega32 - Atmega8 Master-Slave SPI Communication
+
+## Task 7 - Make a Lithium-ion Battery Pack
+ A battery pack of 4 cells was ceated by connecting them in series.
+ ![](https://i.imgur.com/OtDnzl9.jpeg)
+ ## Task 8 - Working with multiple sensors.
+ Although the task was to Build an RC car, since I encounterd issues with data recieving errors, Ive simulated a Environment monitoring system which uses 
+ + LDR for Auto night light
+ + Gas sensor to alarm when the particulate concentration over the threshold value
+ + Tilt sensor to detect Ubnormal movements in structures.
+ + A temparature sensor.
+
+ [Link to simulation](https://www.tinkercad.com/things/65V7RRcfAPF-ems?sharecode=undefined) 
+![](https://i.imgur.com/NY3jDG4.png)
+![](https://i.imgur.com/dnN5Gx6.png)
