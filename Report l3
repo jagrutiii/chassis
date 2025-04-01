@@ -161,3 +161,12 @@ Results: speed of the motor was controlled usingg teh potentiometer interface.
  [Link to simulation](https://www.tinkercad.com/things/65V7RRcfAPF-ems?sharecode=undefined) 
 ![](https://i.imgur.com/NY3jDG4.png)
 ![](https://i.imgur.com/dnN5Gx6.png)
+
+After the simulation, I tried out the task physically and here are the functionalities
+
++ LDR detects the light intensity and LED is controlled according to the values of the light intensity.
++ PIR sensor detects the motion and can send alerts when theres unusual motion 
++ DHT 11 sensor sends the temparature and humidity values.
++ Gas sensor which communicate the Air quality.
+![](https://i.imgur.com/KKUsE6s.jpeg)
+[Code](https://github.com/jagrutiii/chassis/blob/main/sensors)
